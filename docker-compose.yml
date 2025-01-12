@@ -4,7 +4,7 @@ services:
     image: itzg/minecraft-bedrock-server
     environment:
       EULA: "TRUE"
-      LEVEL_NAME: "Some custom level"
+      #LEVEL_NAME: "Some custom level"
     ports:
       - "19132:19132/udp"
     volumes:
