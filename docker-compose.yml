@@ -1,6 +1,16 @@
-version: '3'
-
 services:
+
+  bds:
+    image: itzg/minecraft-bedrock-server
+    environment:
+      EULA: "TRUE"
+    ports:
+      - "19132:19132/udp"
+    volumes:
+      - ./bdr-data:/data
+    stdin_open: true
+    tty: true
+
   mc:
     image: itzg/minecraft-server
     environment:
@@ -10,6 +20,7 @@ services:
       - "25565:25565"
     volumes:
       - mc-data:/data
+
   monitor:
     image: itzg/mc-monitor
     command: export-for-prometheus
@@ -18,6 +29,7 @@ services:
       DEBUG: "true"
     depends_on:
       - mc
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.1
     ports:
@@ -27,6 +39,7 @@ services:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+
   prometheus:
     image: prom/prometheus
     volumes:
@@ -34,6 +47,7 @@ services:
       - prometheus-tsdb:/prometheus
     depends_on:
       - monitor
+
   grafana:
     image: grafana/grafana-oss:${GRAFANA_VERSION:-8.3.3}
     ports:
@@ -48,5 +62,6 @@ services:
 
 volumes:
   mc-data: {}
+  bdr-data: {}
   prometheus-tsdb: {}
   grafana-lib: {}
