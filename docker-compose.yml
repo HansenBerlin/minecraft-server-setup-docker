@@ -1,16 +1,54 @@
 services:
 
-  bds:
+  minecraft:
     image: itzg/minecraft-bedrock-server
+    container_name: minecraft
     environment:
       EULA: "TRUE"
-      #LEVEL_NAME: "Some custom level"
+      LEVEL_NAME: survivalsmp
+      OPS: "2533274840945594, 2535465719343630"
+      ALLOW_CHEATS: true
+      ALLOW_LIST: false
+      CLIENT_SIDE_CHUNK_GENERATION_ENABLED: false
+      MAX_THREADS: 0
+      VIEW_DISTANCE: 20
+      SERVER_NAME: "Heilige Tomatenserver"
+      ENABLE_SSH: true
     ports:
       - "19132:19132/udp"
     volumes:
       - ./bdr-data:/data
     stdin_open: true
     tty: true
+    expose:
+      - 2222
+
+  backup:
+    container_name: backup
+    image: kaiede/minecraft-bedrock-backup
+    restart: always
+    depends_on:
+      minecraft:
+        condition: service_healthy
+    volumes:
+      - ./backups:/backups
+      - ./bdr-data:/bdr-data
+
+  websocket:
+    container_name: websocket
+    image: joanroig/admincraft-websocket:latest
+    restart: always
+    depends_on:
+      minecraft:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      #- ./certs:/usr/src/app/certs:ro
+    environment:
+      SECRET_KEY: 7VHKHrngbqrAvxrrDM4v4kjMtkhjhqK6RjvuzhTmNH4EaqbesTLBrna82ZGgiYf4
+      USE_SSL: false
 
   mc:
     image: itzg/minecraft-server
@@ -26,10 +64,10 @@ services:
     image: itzg/mc-monitor
     command: export-for-prometheus
     environment:
-      EXPORT_SERVERS: mc
+      EXPORT_SERVERS: minecraft
       DEBUG: "true"
     depends_on:
-      - mc
+      - minecraft
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.1

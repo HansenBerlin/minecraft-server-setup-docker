@@ -1,0 +1,15 @@
+containers:
+  bedrock:
+    - name: minecraft
+      ssh: minecraft:2222
+      passwordFile: /minecraft/.remote-console.yaml
+      worlds:
+        - /bdr-data/worlds/survivalsmp
+schedule:
+  interval: 6h
+  startupDelay: 1m
+trim:
+  trimDays: 2
+  keepDays: 14
+  minKeep: 2
+backupPath: "/backups"
